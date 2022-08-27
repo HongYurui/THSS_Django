@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Information</title>
+</head>
+<body>
+    {% load static %}
+    <h1>Model Information</h1>
+    <table>
+        <tr>
+            <th>Name: </th>
+            <td>{{ record.model_name }}</td>
+        </tr>
+        <tr>
+            <th>Uploader: </th>
+            <td>{{ record.uploader }}</td>
+        </tr>
+        <tr>
+            <th>Time Created: </th>
+            <td>{{ record.created_at|date:'Y.m.d H:i:s'}}</td>
+        </tr>
+        <tr>
+            <th>Time Cost: </th>
+            <td>
+                {{ timespan }}
+            </td>
+        </tr>
+        <tr>
+            {% if record.created_at != record.updated_at %}
+                <th>Time Completed: </th>
+                <td>{{ record.updated_at|date:'Y.m.d H:i:s'}}</td>
+            {% endif %}
+        <tr>
+            <th>Status: </th>
+            <td>
+                {% if record.created_at == record.updated_at %}
+                    <span style="color: blue;">Training...</span>
+                {% else %}
+                    <span style="color: green;">Complete</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% if record.created_at != record.updated_at %}
+        <tr>
+            <th>Download: </th>
+            <td><a href="{% static 'models/' %}{{ record.created_at|date:'YmdHis' }}/{{ record.created_at|date:'YmdHis' }}_lenet.pth" download>lenet.pth</td>
+        </tr>
+        {% endif %}
+    </table>
+    <h1>Training Logs</h1>
+    <textarea style="border: 1px solid black; width: 25%; height: 600px; font-size: 15px" readonly="readonly">{{ log }}</textarea>
+    <h1>Image for Loss</h1>
+    <img src="{% static 'models/' %}{{ record.created_at|date:'YmdHis' }}/images/loss.png" alt="Not currently available"><br/>
+    <h1>Image for Accuracy</h1>
+    <img src="{% static 'models/' %}{{ record.created_at|date:'YmdHis' }}/images/accuracy.png" alt="Not currently available"><br/>
+    <button type="button" onclick="location.href=('../records?model_name=&uploader=&page_num=')">Back to all records</button>
+    <button type="button" onclick="location.href=('../train')">Set a new training task</button>
+    <style>
+        table {
+            border-collapse: collapse;
+        }
+        th {
+            text-align: right;
+        }
+        td {
+            text-align: center;
+            border: 1px solid black;
+        }
+    </style>
+</body>
+<footer>
+    
+</footer>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Training Records</title>
+</head>
+<body>
+    {% load static %}
+    <h1>Records</h1>
+    <form action="/records" method="get">
+        <label for="model_name">Model Name:</label>
+        <input type="text" id="model_name" name="model_name" size="5" value="{{ filter_model_name|default:'' }}">
+        <label for="uploader">Uploader:</label>
+        <input type="text" id="uploader" name="uploader" size="5" value="{{ filter_uploader|default:'' }}">
+        <input type="radio" name="search" id="search" value="fuzzy" {{ checked_fuzzy }}>
+        <label>Fuzzy</label>
+        <input type="radio" name="search" id="search" value="exact" {{ checked_exact }}>
+        <label>Exact</label>
+        <input type="submit" value="Search">
+    </form>
+    <table>
+        <tr>
+            <th>Model Name</th>
+            <th>Uploader</th>
+            <th>Time Submitted</th>
+            <th>Status</th>
+            <th><a href="javascript:download()">Download All</th>
+        </tr>
+        {% for record in page %}
+        <tr>
+            <td><a href="/model/{{ record.created_at|date:'YmdHis'}}">{{ record.model_name }}</td>
+            <td>{{ record.uploader }}</td>
+            <td>{{ record.created_at|date:'Y.m.d H:i:s' }}</td>
+            <td>
+                {% if record.created_at != record.updated_at %}
+                    <span style="color: green;">Complete</span>
+                {% else %}
+                    <span style="color: blue;">Training...</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if record.created_at != record.updated_at %}
+                    <a href="{% static 'models/' %}{{ record.created_at|date:'YmdHis' }}/{{ record.created_at|date:'YmdHis' }}_lenet.pth" class="lenet" download>lenet.pth
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    <nav aria-label="paginator">
+        <ul>
+            {% if page.has_previous %}
+                <a href="/records?model_name={{ filter_model_name }}&uploader={{ filter_uploader }}&page_num={{ page.previous_page_number }}">⬅️️</a>
+            {% endif %}
+            {% for i in paginator.page_range %}
+                {% if i == 1 or i == paginator.num_pages or i|add:paginator_width > page.number and i < page.number|add:paginator_width %}
+                    {% if i == page.number %}
+                        <a href="/records?model_name={{ filter_model_name }}&uploader={{ filter_uploader }}&page_num={{ i }}" style="color: red;">{{ i }}</a>
+                    {% else %}
+                        <a href="/records?model_name={{ filter_model_name }}&uploader={{ filter_uploader }}&page_num={{ i }}">{{ i }}</a>
+                    {% endif %}
+                {% endif %}
+                {% if i > 1 and i < paginator.num_pages %}
+                    {% if i|add:paginator_width == page.number or i == page.number|add:paginator_width %}
+                        ..
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+            {% if page.has_next %}
+                <a href="/records?model_name={{ filter_model_name }}&uploader={{ filter_uploader }}&page_num={{ page.next_page_number }}">➡️</a>
+            {% endif %}
+        </ul>
+    </nav>
+    <button type="button" onclick="location.href=('../home')">Back to home page</button>
+    <button type="button" onclick="location.href=('../train')">Set a new training task</button>
+    <style>
+        table {
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+        }
+    </style>
+    <script type="text/javascript">
+      function download() {
+        for (var i in document.getElementsByClassName('lenet')) {
+          document.getElementsByClassName('lenet')[i].click();
+        }
+      }
+    </script>
+</body>
+<footer>
+    
+</footer>
